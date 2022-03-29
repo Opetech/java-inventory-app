@@ -16,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-public class Index extends OrderProduct {
+public class Index extends JFrame {
 
 	ArrayList<Integer> cartItems = new ArrayList<>();
 	JLabel cartLink;
