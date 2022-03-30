@@ -135,6 +135,7 @@ public class Products extends JFrame {
 
 		// Initializing the JTable
 		JTable productsTable = new JTable(data, columnNames);
+		productsTable.setIntercellSpacing(new Dimension(35, 0));
 
 		// adding it to JScrollPane
 		JScrollPane productsScrollPane = new JScrollPane(productsTable);

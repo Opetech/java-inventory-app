@@ -6,11 +6,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,8 +21,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 public class Register extends JFrame {
-	
+
 	JComboBox<String> gendersField;
+	StringBuffer errorMsg = new StringBuffer();
 
 	public Register() {
 		// NavBar Container Panel
@@ -37,19 +41,19 @@ public class Register extends JFrame {
 		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
 		JLabel loginLink = new JLabel("Login");
 		JLabel registerLink = new JLabel("Register");
-		
+
 		appTitle.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				Index homepage = new Index();
 			}
 		});
-		
+
 		registerLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				Register registerPage = new Register();
 			}
 		});
-		
+
 		loginLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				Login loginPage = new Login();
@@ -68,42 +72,48 @@ public class Register extends JFrame {
 		registerFormPanel.setPreferredSize(new Dimension(700, 300));
 		registerFormPanel.setLayout(null);
 		registerFormPanel.setBackground(Color.lightGray);
-		
-		//Register Header
-		JLabel registerHeader = new JLabel("Account Signup");	
+
+		// Register Header
+		JLabel registerHeader = new JLabel("Account Signup");
 		registerHeader.setBounds(275, 40, 300, 40);
 		registerHeader.setFont(new Font("", Font.BOLD, 20));
 
-		// Register Form
+		// Registration Form Fields
 		JTextField firstnameField = new JTextField();
+		firstnameField.setInputVerifier(new FormValidation("Firstname"));
+
 		JTextField lastnameField = new JTextField();
 		JTextField usernameField = new JTextField();
-		String[] genderArray = {"Male", "Female"};
-		
+		String[] genderArray = { "Male", "Female" };
+
 		gendersField = new JComboBox<>(genderArray);
-		gendersField.setSelectedIndex(0); //Select male as default gender
-		
+		gendersField.setSelectedIndex(0); // Select male as default gender
+
 		JPasswordField passwordField = new JPasswordField();
 		JButton submitButton = new JButton("Register");
-		
+
 		submitButton.setFocusable(false);
-		submitButton.addActionListener(null);
-		
+		submitButton.addActionListener(e -> {
+			if (e.getSource() == submitButton) {
+			    System.out.println(errorMsg);
+			}
+		});
+
 		firstnameField.setBounds(200, 100, 300, 40);
-		firstnameField.setText("Enter Firstname");
+		lastnameField.setText("Enter Firstname");
 		
 		lastnameField.setBounds(200, 150, 300, 40);
 		lastnameField.setText("Enter Lastname");
-		
+
 		usernameField.setBounds(200, 200, 300, 40);
 		usernameField.setText("Enter Username");
-		
+
 		gendersField.setBounds(200, 250, 300, 40);
 
 		passwordField.setBounds(200, 300, 300, 40);
 		passwordField.setText("Enter Password");
 
-		submitButton.setBounds(200, 300, 100, 40);
+		submitButton.setBounds(200, 350, 100, 40);
 
 		// Footer
 		JPanel footerPanel = new JPanel();
@@ -130,6 +140,31 @@ public class Register extends JFrame {
 		this.add(registerFormPanel, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
 		this.setVisible(true);
+	}
+
+	/**
+	 * Perform form validation
+	 *
+	 */
+	public class FormValidation extends InputVerifier {
+		String textFieldName;
+			
+		public FormValidation(String textFieldName) {
+			this.textFieldName = textFieldName;
+		}
+
+		@Override
+		public boolean verify(JComponent input) {
+			Toolkit.getDefaultToolkit().beep();
+			JTextField tf = (JTextField) input;
+			if (!tf.getText().isEmpty()) {
+				return true;
+			} else {
+				errorMsg.append(textFieldName + "cannot be empty \n");
+				return false;
+			}
+		}
+
 	}
 
 	public static void main(String[] args) {
