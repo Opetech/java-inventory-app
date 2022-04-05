@@ -22,6 +22,7 @@ public class Index extends JFrame {
 	JLabel cartLink;
 	JLabel loginLink;
 	JLabel registerLink;
+	JLabel userProfileLabel;
 
 	public Index() {
 		// NavBar Container Panel
@@ -45,6 +46,7 @@ public class Index extends JFrame {
 		});
 
 		cartLink = new JLabel("Cart");
+		userProfileLabel = new JLabel("Hi, " + System.getProperty("username"));
 		loginLink = new JLabel("Login");
 		registerLink = new JLabel("Register");
 		
@@ -67,10 +69,18 @@ public class Index extends JFrame {
 		});
 
 		leftNavbarItemsPanel.add(appTitle);
-
+		
 		rightNavbarItemsPanel.add(cartLink);
-		rightNavbarItemsPanel.add(loginLink);
-		rightNavbarItemsPanel.add(registerLink);
+		if (System.getProperty("userIsLoggedIn") == "true") {
+		    rightNavbarItemsPanel.add(userProfileLabel);
+		}else {
+			
+			rightNavbarItemsPanel.add(loginLink);
+			rightNavbarItemsPanel.add(registerLink);
+		}
+		
+		
+		
 
 		navbar.add(leftNavbarItemsPanel);
 		navbar.add(rightNavbarItemsPanel);

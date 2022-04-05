@@ -9,6 +9,12 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -16,6 +22,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -23,6 +30,10 @@ import javax.swing.JTextField;
 public class Register extends JFrame {
 
 	JComboBox<String> gendersField;
+	JTextField firstnameField;
+	JTextField lastnameField;
+	JTextField usernameField;
+	JPasswordField passwordField;
 	StringBuffer errorMsg = new StringBuffer();
 
 	public Register() {
@@ -79,41 +90,38 @@ public class Register extends JFrame {
 		registerHeader.setFont(new Font("", Font.BOLD, 20));
 
 		// Registration Form Fields
-		JTextField firstnameField = new JTextField();
-		firstnameField.setInputVerifier(new FormValidation("Firstname"));
-
-		JTextField lastnameField = new JTextField();
-		JTextField usernameField = new JTextField();
-		String[] genderArray = { "Male", "Female" };
-
-		gendersField = new JComboBox<>(genderArray);
-		gendersField.setSelectedIndex(0); // Select male as default gender
-
-		JPasswordField passwordField = new JPasswordField();
-		JButton submitButton = new JButton("Register");
-
-		submitButton.setFocusable(false);
-		submitButton.addActionListener(e -> {
-			if (e.getSource() == submitButton) {
-			    System.out.println(errorMsg);
-			}
-		});
-
+		firstnameField = new JTextField("Enter Firstname");
+		firstnameField.setInputVerifier(new FormValidation("textfield"));
 		firstnameField.setBounds(200, 100, 300, 40);
-		lastnameField.setText("Enter Firstname");
-		
+		firstnameField.setText("Enter Firstname");
+
+		lastnameField = new JTextField();
+		lastnameField.setInputVerifier(new FormValidation("textfield"));
 		lastnameField.setBounds(200, 150, 300, 40);
 		lastnameField.setText("Enter Lastname");
 
+		usernameField = new JTextField();
+		usernameField.setInputVerifier(new FormValidation("textfield"));
 		usernameField.setBounds(200, 200, 300, 40);
 		usernameField.setText("Enter Username");
 
+		String[] genderArray = { "Male", "Female" };
+		gendersField = new JComboBox<>(genderArray);
+		gendersField.setSelectedIndex(0); // Select male as default gender
 		gendersField.setBounds(200, 250, 300, 40);
 
+		passwordField = new JPasswordField("passwordfield");
 		passwordField.setBounds(200, 300, 300, 40);
 		passwordField.setText("Enter Password");
 
+		JButton submitButton = new JButton("Register");
 		submitButton.setBounds(200, 350, 100, 40);
+		submitButton.setFocusable(false);
+		submitButton.addActionListener(e -> {
+			if (e.getSource() == submitButton) {
+				this.storeUser();
+			}
+		});
 
 		// Footer
 		JPanel footerPanel = new JPanel();
@@ -142,33 +150,89 @@ public class Register extends JFrame {
 		this.setVisible(true);
 	}
 
+	public void storeUser() {
+		Connection connection = DbConnect.connect();
+		// Creating PreparedStatement object
+		PreparedStatement preparedStatement = null;
+		Statement selectStatement = null;
+
+		try {
+			// Check If Username exist in database
+			preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
+			preparedStatement.setString(1, usernameField.getText());
+			ResultSet usernameExist = preparedStatement.executeQuery();
+
+			if (!usernameExist.next()) {
+				JOptionPane.showMessageDialog(this, "Sorry! Username provided is taken");
+			} else {
+				preparedStatement = connection.prepareStatement(
+						"insert into users (id, firstname, lastname, username, gender, password, is_admin) values(?,?,?,?,?,?,?)");
+				// Setting values for Each Parameter
+				preparedStatement.setNull(1, Types.NULL);
+				preparedStatement.setString(2, firstnameField.getText());
+				preparedStatement.setString(3, lastnameField.getText());
+				preparedStatement.setString(4, usernameField.getText());
+				preparedStatement.setString(5, (String) gendersField.getSelectedItem());
+				preparedStatement.setString(6, passwordField.getText());
+				preparedStatement.setInt(7, 0);
+
+				// Executing Query
+				preparedStatement.executeUpdate();
+
+				// Get details of user that just signed up
+				preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
+				preparedStatement.setString(1, usernameField.getText());
+				ResultSet userResultSet = preparedStatement.executeQuery();
+
+				String username = null;
+				int userId = 0;
+				while (userResultSet.next()) {
+					username = userResultSet.getString("username");
+					userId = userResultSet.getInt("id");
+				}
+
+				System.setProperty("userIsLoggedIn", "true");
+				System.setProperty("username", username);
+				System.setProperty("userId", String.valueOf(userId));
+				
+				preparedStatement.close();
+
+				this.dispose();
+				Index homepageIndex = new Index();
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} finally {
+			try {
+				connection.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * Perform form validation
 	 *
 	 */
 	public class FormValidation extends InputVerifier {
-		String textFieldName;
-			
-		public FormValidation(String textFieldName) {
-			this.textFieldName = textFieldName;
+		String formFieldType;
+
+		public FormValidation(String formFieldType) {
+			this.formFieldType = formFieldType;
 		}
 
 		@Override
 		public boolean verify(JComponent input) {
-			Toolkit.getDefaultToolkit().beep();
-			JTextField tf = (JTextField) input;
+			JTextField tf = formFieldType.equals("textfield") ? (JTextField) input : (JPasswordField) input;
 			if (!tf.getText().isEmpty()) {
 				return true;
 			} else {
-				errorMsg.append(textFieldName + "cannot be empty \n");
+				Toolkit.getDefaultToolkit().beep();
 				return false;
 			}
 		}
 
 	}
-
-	public static void main(String[] args) {
-		new Register();
-	}
-
 }

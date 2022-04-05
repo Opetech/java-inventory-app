@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -30,18 +31,16 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 public class ViewProduct extends JFrame {
-
-	ArrayList<Integer> cartItems = new ArrayList<>();
 	JLabel cartLink;
 	JLabel loginLink;
 	JLabel registerLink;
+	JLabel userProfileLabel;
 	int productId;
 	JButton addToCartBtn;
 
 	public ViewProduct(int productId) {
 		this.productId = productId;
-		
-		
+
 		// NavBar Container Panel
 		JPanel navbar = new JPanel();
 		navbar.setLayout(new GridLayout(1, 1));
@@ -64,19 +63,20 @@ public class ViewProduct extends JFrame {
 		cartLink = new JLabel("Cart");
 		loginLink = new JLabel("Login");
 		registerLink = new JLabel("Register");
-		
+		userProfileLabel = new JLabel("Hi, " + System.getProperty("username"));
+
 		cartLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				OrderProduct cart = new OrderProduct();
 			}
 		});
-		
+
 		registerLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				Register registerPage = new Register();
 			}
 		});
-		
+
 		loginLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				Login loginPage = new Login();
@@ -86,36 +86,44 @@ public class ViewProduct extends JFrame {
 		leftNavbarItemsPanel.add(appTitle);
 
 		rightNavbarItemsPanel.add(cartLink);
-		rightNavbarItemsPanel.add(loginLink);
-		rightNavbarItemsPanel.add(registerLink);
+
+		if (System.getProperty("userIsLoggedIn") == "true") {
+			rightNavbarItemsPanel.add(userProfileLabel);
+		} else {
+
+			rightNavbarItemsPanel.add(loginLink);
+			rightNavbarItemsPanel.add(registerLink);
+		}
 
 		navbar.add(leftNavbarItemsPanel);
 		navbar.add(rightNavbarItemsPanel);
 
-		//View Product container
+		// View Product container
 		JPanel productPanel = new JPanel(new GridLayout(0, 1));
 		productPanel.setBorder(new EmptyBorder(30, 10, 20, 10));
-		
-		
-		//Product Name Display
+
+		// Product Name Display
 		JLabel productName = new JLabel("MacBook Air 2020");
 		productName.setFont(new Font("MV Boli", Font.BOLD, 25));
 		productName.setHorizontalAlignment(JLabel.CENTER);
 		productPanel.add(productName);
-		
-		//Product Image Display
-		JLabel productImg = new JLabel(new ImageIcon(new ImageIcon("/C://Users//USER//eclipse-workspace//Inventory//src//macbook.jpg").getImage().getScaledInstance(600, 700, Image.SCALE_DEFAULT)));
+
+		// Product Image Display
+		JLabel productImg = new JLabel(
+				new ImageIcon(new ImageIcon("/C://Users//USER//eclipse-workspace//Inventory//src//macbook.jpg")
+						.getImage().getScaledInstance(600, 700, Image.SCALE_DEFAULT)));
 		productPanel.add(productImg);
 		productImg.setSize(200, 100);
-		
-		//Product Description
-		JLabel productDescription = new JLabel("<html>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</html>");
+
+		// Product Description
+		JLabel productDescription = new JLabel(
+				"<html>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</html>");
 		productPanel.add(productDescription);
-		
-		//Product Actions
+
+		// Product Actions
 		JPanel actionsPanel = new JPanel();
-		
-		//Create add to cart button
+
+		// Create add to cart button
 		addToCartBtn = new JButton("Add to Cart");
 		addToCartBtn.setFocusable(false);
 		addToCartBtn.addActionListener(e -> {
@@ -123,21 +131,9 @@ public class ViewProduct extends JFrame {
 				addOrRemoveItemFromCart(productId);
 			}
 		});
-		
-		//Create Buy Item button
-		JButton orderBtn = new JButton("Buy Item");
-		orderBtn.setFocusable(false);
-		orderBtn.addActionListener(e -> {
-			if (e.getSource() == orderBtn) {
-				JOptionPane.showMessageDialog(this, "Your Order Has Been Placed Successfully", "Success", JOptionPane.DEFAULT_OPTION);
-			}
-		});
-		
-		
+
 		actionsPanel.add(addToCartBtn);
-		actionsPanel.add(orderBtn);
 		productPanel.add(actionsPanel);
-	
 
 		// Footer
 		JPanel footerPanel = new JPanel();
@@ -157,26 +153,34 @@ public class ViewProduct extends JFrame {
 		this.setSize(700, 700);
 		this.setVisible(true);
 	}
-	
+
 	/**
 	 * //Add or remove item from cart
 	 * 
 	 * @param productBtn
 	 */
 	public void addOrRemoveItemFromCart(int productId) {
-		if (cartItems.contains(productId)) {
-			cartItems.remove(cartItems.indexOf(productId));
-			cartLink.setText("Carts " + (cartItems.size() < 1 ? "" : "(" + cartItems.size() + ")"));
+		String cartProductsId = System.getProperty("cartProductsId");
+		if (cartProductsId == null) {
+			System.setProperty("cartProductsId", String.valueOf(productId) + ",");
+		} else {
+			StringBuilder stringBuilder = new StringBuilder(cartProductsId);
+			stringBuilder.append(String.valueOf(productId) + ",");
+			System.setProperty("cartProductsId", stringBuilder.toString());
+		}
+
+		cartProductsId = System.getProperty("cartProductsId");
+		ArrayList<String> productsId = new ArrayList<>(Arrays.asList(cartProductsId.split(",")));
+      
+		if (productsId.contains(String.valueOf(productId))) {
+			productsId.remove(productsId.indexOf(productId));
+			cartLink.setText("Carts " + (productsId.size() < 1 ? "" : "(" + productsId.size() + ")"));
 			addToCartBtn.setText("Add To Cart");
 		} else {
-			cartItems.add(productId);
-			cartLink.setText("Carts " + ("(" + cartItems.size() + ")"));
+			productsId.add(String.valueOf(productId));
+			cartLink.setText("Carts " + ("(" + productsId.size() + ")"));
 			addToCartBtn.setText("Remove From Cart");
 		}
+		System.out.println(productsId);
 	}
-
-	public static void main(String[] args) {
-         new ViewProduct(0);
-	}
-
 }
