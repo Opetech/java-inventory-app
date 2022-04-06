@@ -162,7 +162,7 @@ public class Register extends JFrame {
 			preparedStatement.setString(1, usernameField.getText());
 			ResultSet usernameExist = preparedStatement.executeQuery();
 
-			if (!usernameExist.next()) {
+			if (usernameExist == null) {
 				JOptionPane.showMessageDialog(this, "Sorry! Username provided is taken");
 			} else {
 				preparedStatement = connection.prepareStatement(

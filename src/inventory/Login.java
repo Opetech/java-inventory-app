@@ -15,6 +15,8 @@ import java.sql.SQLException;
 
 import javax.swing.*;
 
+import admin.Dashboard;
+
 public class Login extends JFrame {
 
 	public Login() {
@@ -98,24 +100,33 @@ public class Login extends JFrame {
 
 					ResultSet userResultSet = preparedStatement.executeQuery();
 
-					if (!userResultSet.next()) {
+					if (userResultSet == null) {
 						JOptionPane.showMessageDialog(this, "Wrong Username and Password.");
 					} else {
 						String username = null;
 						int userId = 0;
+						int userisadmin = 0;
+
 						while (userResultSet.next()) {
 							username = userResultSet.getString("username");
 							userId = userResultSet.getInt("id");
+							userisadmin = userResultSet.getInt("is_admin");
 						}
 
 						System.setProperty("userIsLoggedIn", "true");
 						System.setProperty("username", username);
 						System.setProperty("userId", String.valueOf(userId));
-						
+
+						// Redirect to admin dashboard or user homepage depending on logged in user
+						// priviledge
 						this.dispose();
-						Index homepageIndex = new Index();
+						if (userisadmin == 1) {
+							Dashboard dashboard = new Dashboard();
+						} else {
+							Index homepageIndex = new Index();
+						}
 					}
-					
+
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
