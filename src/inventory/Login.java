@@ -20,47 +20,7 @@ import admin.Dashboard;
 public class Login extends JFrame {
 
 	public Login() {
-
-		// NavBar Container Panel
-		JPanel navbar = new JPanel();
-		navbar.setLayout(new GridLayout(1, 1));
-		navbar.setPreferredSize(new Dimension(700, 45));
-		navbar.setBackground(Color.blue);
-
-		// Navbar items Panel
-		JPanel leftNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-		JPanel rightNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-
-		// Navbar Items
-		JLabel appTitle = new JLabel("TechHub Inventory");
-		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
-		JLabel loginLink = new JLabel("Login");
-		JLabel registerLink = new JLabel("Register");
-
-		appTitle.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Index homepage = new Index();
-			}
-		});
-
-		registerLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Register registerPage = new Register();
-			}
-		});
-
-		loginLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Login loginPage = new Login();
-			}
-		});
-
-		leftNavbarItemsPanel.add(appTitle);
-		rightNavbarItemsPanel.add(loginLink);
-		rightNavbarItemsPanel.add(registerLink);
-
-		navbar.add(leftNavbarItemsPanel);
-		navbar.add(rightNavbarItemsPanel);
+		Includes includes = new Includes();
 
 		// Login Form Panel
 		JPanel loginFormPanel = new JPanel();
@@ -95,23 +55,15 @@ public class Login extends JFrame {
 				try {
 					preparedStatement = connection
 							.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
-					preparedStatement.setString(1, usernameField.getText());
+					preparedStatement.setString(1, usernameField.getText().toLowerCase());
 					preparedStatement.setString(2, passwordField.getText());
 
 					ResultSet userResultSet = preparedStatement.executeQuery();
 
-					if (userResultSet == null) {
-						JOptionPane.showMessageDialog(this, "Wrong Username and Password.");
-					} else {
-						String username = null;
-						int userId = 0;
-						int userisadmin = 0;
-
-						while (userResultSet.next()) {
-							username = userResultSet.getString("username");
-							userId = userResultSet.getInt("id");
-							userisadmin = userResultSet.getInt("is_admin");
-						}
+					if (userResultSet.next()) {
+						String username = userResultSet.getString("username");
+						int userId = userResultSet.getInt("id");
+						int userisadmin = userResultSet.getInt("is_admin");
 
 						System.setProperty("userIsLoggedIn", "true");
 						System.setProperty("username", username);
@@ -125,6 +77,8 @@ public class Login extends JFrame {
 						} else {
 							Index homepageIndex = new Index();
 						}
+					} else {
+						JOptionPane.showMessageDialog(this, "Wrong Username and Password.");
 					}
 
 				} catch (SQLException e1) {
@@ -151,7 +105,7 @@ public class Login extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
 
-		this.add(navbar, BorderLayout.NORTH);
+		this.add(includes.navbar(), BorderLayout.NORTH);
 		this.add(loginFormPanel, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
 		this.setVisible(true);

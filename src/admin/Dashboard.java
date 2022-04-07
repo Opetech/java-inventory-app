@@ -30,13 +30,14 @@ import inventory.Index;
 import inventory.ViewProduct;
 
 public class Dashboard extends JFrame {
-   
+
 	public Dashboard() {
-		AdminIncludes adminIncludes = new AdminIncludes(); 
-		
+		AdminIncludes adminIncludes = new AdminIncludes();
+
 		// contentSection container
 		JPanel contentSectionPanel = new JPanel();
 		contentSectionPanel.setLayout(new BorderLayout(0, 30));
+		contentSectionPanel.add(adminIncludes.stats(), BorderLayout.NORTH);
 
 		JPanel productsListPanel = new JPanel(new BorderLayout(0, 20));
 
@@ -67,9 +68,6 @@ public class Dashboard extends JFrame {
 				data[i][2] = products.getDate("created_at") + "";
 				i++;
 			}
-			
-			adminIncludes.setProductStatLabel(i);
-			
 			productStatement.close();
 
 			// Initializing the JTable
@@ -77,27 +75,11 @@ public class Dashboard extends JFrame {
 
 			// adding table to JScrollPane to allow scrolling
 			productsScrollPane = new JScrollPane(productsTable);
-
-			// Get total no of registered program users and update users count label
-			usersCountStatement = connection.createStatement();
-			ResultSet usersCount = usersCountStatement.executeQuery("SELECT COUNT(*) FROM users");
-			usersCount.next();
-			adminIncludes.setUsersStatLabel(usersCount.getInt("count(*)"));
-			usersCountStatement.close();
-
-			// Get total no of products orders and update orders count label
-			ordersCountStatement = connection.createStatement();
-			ResultSet ordersCount = ordersCountStatement.executeQuery("SELECT COUNT(*) FROM orders");
-			ordersCount.next();
-			adminIncludes.setOrdersStatLabel(ordersCount.getInt("count(*)"));
-			ordersCountStatement.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		productsListPanel.add(productsScrollPane, BorderLayout.CENTER);
-
-		contentSectionPanel.add(adminIncludes.stats(), BorderLayout.NORTH);
 		contentSectionPanel.add(productsListPanel, BorderLayout.CENTER);
 
 		// Footer
@@ -108,7 +90,7 @@ public class Dashboard extends JFrame {
 
 		footerPanel.add(footerText);
 
-		this.setTitle("Admin - 	Products");
+		this.setTitle("Admin - Dashboard");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		this.add(AdminIncludes.navbar(), BorderLayout.NORTH);

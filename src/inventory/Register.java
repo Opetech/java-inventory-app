@@ -37,47 +37,8 @@ public class Register extends JFrame {
 	StringBuffer errorMsg = new StringBuffer();
 
 	public Register() {
-		// NavBar Container Panel
-		JPanel navbar = new JPanel();
-		navbar.setLayout(new GridLayout(1, 1));
-		navbar.setPreferredSize(new Dimension(700, 45));
-		navbar.setBackground(Color.blue);
-
-		// Navbar items Panel
-		JPanel leftNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-		JPanel rightNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-
-		// Navbar Items
-		JLabel appTitle = new JLabel("TechHub Inventory");
-		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
-		JLabel loginLink = new JLabel("Login");
-		JLabel registerLink = new JLabel("Register");
-
-		appTitle.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Index homepage = new Index();
-			}
-		});
-
-		registerLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Register registerPage = new Register();
-			}
-		});
-
-		loginLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Login loginPage = new Login();
-			}
-		});
-
-		leftNavbarItemsPanel.add(appTitle);
-		rightNavbarItemsPanel.add(loginLink);
-		rightNavbarItemsPanel.add(registerLink);
-
-		navbar.add(leftNavbarItemsPanel);
-		navbar.add(rightNavbarItemsPanel);
-
+		Includes includes = new Includes();
+		
 		// Register Form Panel
 		JPanel registerFormPanel = new JPanel();
 		registerFormPanel.setPreferredSize(new Dimension(700, 300));
@@ -144,7 +105,7 @@ public class Register extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
 
-		this.add(navbar, BorderLayout.NORTH);
+		this.add(includes.navbar(), BorderLayout.NORTH);
 		this.add(registerFormPanel, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
 		this.setVisible(true);
@@ -169,9 +130,9 @@ public class Register extends JFrame {
 						"insert into users (id, firstname, lastname, username, gender, password, is_admin) values(?,?,?,?,?,?,?)");
 				// Setting values for Each Parameter
 				preparedStatement.setNull(1, Types.NULL);
-				preparedStatement.setString(2, firstnameField.getText());
-				preparedStatement.setString(3, lastnameField.getText());
-				preparedStatement.setString(4, usernameField.getText());
+				preparedStatement.setString(2, firstnameField.getText().toLowerCase());
+				preparedStatement.setString(3, lastnameField.getText().toLowerCase());
+				preparedStatement.setString(4, usernameField.getText().toLowerCase());
 				preparedStatement.setString(5, (String) gendersField.getSelectedItem());
 				preparedStatement.setString(6, passwordField.getText());
 				preparedStatement.setInt(7, 0);

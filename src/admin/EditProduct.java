@@ -17,29 +17,6 @@ import javax.swing.JTextField;
 public class EditProduct extends JFrame {
 
 	public EditProduct() {
-		// NavBar Container Panel
-		JPanel navbar = new JPanel();
-		navbar.setLayout(new GridLayout(1, 1));
-		navbar.setPreferredSize(new Dimension(700, 45));
-		navbar.setBackground(Color.blue);
-
-		// Navbar items Panel
-		JPanel leftNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-		JPanel rightNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-
-		// Navbar Items
-		JLabel appTitle = new JLabel("TechHub Inventory");
-		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
-		JLabel loginLink = new JLabel("Carts");
-		JLabel registerLink = new JLabel("Hi! User");
-
-		leftNavbarItemsPanel.add(appTitle);
-		rightNavbarItemsPanel.add(loginLink);
-		rightNavbarItemsPanel.add(registerLink);
-
-		navbar.add(leftNavbarItemsPanel);
-		navbar.add(rightNavbarItemsPanel);
-
 		JPanel formPanel = new JPanel();
 		formPanel.setLayout(null);
 
@@ -78,10 +55,9 @@ public class EditProduct extends JFrame {
 		this.setTitle("TechHub Inventory - Add Product");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
-		this.add(navbar, BorderLayout.NORTH);
+		this.add(AdminIncludes.navbar(), BorderLayout.NORTH);
 		this.add(formPanel, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
-//				this.pack();
 		this.setSize(700, 700);
 		this.setVisible(true);
 	}

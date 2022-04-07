@@ -30,79 +30,16 @@ public class OrderProduct extends JFrame {
 	JLabel userProfileLabel;
 	int productId;
 	JButton addToCartBtn;
+	Includes includes;
 
 	public OrderProduct() {
-
+		includes = new Includes();
 	}
 
 	public void displayCart() {
-		// NavBar Container Panel
-		JPanel navbar = new JPanel();
-		navbar.setLayout(new GridLayout(1, 1));
-		navbar.setPreferredSize(new Dimension(700, 45));
-		navbar.setBackground(Color.blue);
-
-		// Navbar items Panel
-		JPanel leftNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-		JPanel rightNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-
-		// Navbar Items
-		JLabel appTitle = new JLabel("TechHub Inventory");
-		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
-		appTitle.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Index homepage = new Index();
-			}
-		});
-
-		cartLink = new JLabel("Cart");
-		userProfileLabel = new JLabel("Hi, " + System.getProperty("username"));
-		loginLink = new JLabel("Login");
-		registerLink = new JLabel("Register");
-
-		cartLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				OrderProduct cart = new OrderProduct();
-			}
-		});
-
-		registerLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Register registerPage = new Register();
-			}
-		});
-
-		loginLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Login loginPage = new Login();
-			}
-		});
-
-		leftNavbarItemsPanel.add(appTitle);
-
-		rightNavbarItemsPanel.add(cartLink);
-		if (System.getProperty("userIsLoggedIn") == "true") {
-		    rightNavbarItemsPanel.add(userProfileLabel);
-		}else {
-			
-			rightNavbarItemsPanel.add(loginLink);
-			rightNavbarItemsPanel.add(registerLink);
-		}
-
-		navbar.add(leftNavbarItemsPanel);
-		navbar.add(rightNavbarItemsPanel);
-
 		// View Product container
 		JPanel cartPanel = new JPanel(new GridLayout(1, 2, 20, 20));
 		cartPanel.setBorder(new EmptyBorder(30, 10, 20, 10));
-
-//		// Header Panel Title
-//		JPanel headerTitle = new JPanel();
-//		JLabel title = new JLabel("Your Cart Items");
-//		title.setFont(new Font("MV Boli", Font.BOLD, 20));
-//		title.setHorizontalAlignment(JLabel.CENTER);
-//		headerTitle.add(title);
-//		cartPanel.add(headerTitle);
 
 		// Cart Items
 		JPanel itemPanel = new JPanel();
@@ -173,7 +110,7 @@ public class OrderProduct extends JFrame {
 
 		this.setTitle("TechHub Inventory - View Product");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.add(navbar, BorderLayout.NORTH);
+		this.add(includes.navbar(), BorderLayout.NORTH);
 		this.add(sp, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
 		this.setSize(700, 700);

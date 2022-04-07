@@ -8,6 +8,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -25,108 +29,59 @@ public class Index extends JFrame {
 	JLabel userProfileLabel;
 
 	public Index() {
-		// NavBar Container Panel
-		JPanel navbar = new JPanel();
-		navbar.setLayout(new GridLayout(1, 1));
-		navbar.setPreferredSize(new Dimension(700, 45));
-		navbar.setBackground(Color.blue);
-
-		// Navbar items Panel
-		JPanel leftNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-		JPanel rightNavbarItemsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-
-		// Navbar Items
-		JLabel appTitle = new JLabel("TechHub Inventory");
-		appTitle.setFont(new Font("San Serif", Font.BOLD, 18));
-		
-		appTitle.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Index homepage = new Index();
-			}
-		});
-
-		cartLink = new JLabel("Cart");
-		userProfileLabel = new JLabel("Hi, " + System.getProperty("username"));
-		loginLink = new JLabel("Login");
-		registerLink = new JLabel("Register");
-		
-		registerLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Register registerPage = new Register();
-			}
-		});
-		
-		loginLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				Login loginPage = new Login();
-			}
-		});
-		
-		cartLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				OrderProduct cart = new OrderProduct();
-			}
-		});
-
-		leftNavbarItemsPanel.add(appTitle);
-		
-		rightNavbarItemsPanel.add(cartLink);
-		if (System.getProperty("userIsLoggedIn") == "true") {
-		    rightNavbarItemsPanel.add(userProfileLabel);
-		}else {
-			
-			rightNavbarItemsPanel.add(loginLink);
-			rightNavbarItemsPanel.add(registerLink);
-		}
-		
-		
-		
-
-		navbar.add(leftNavbarItemsPanel);
-		navbar.add(rightNavbarItemsPanel);
+		Includes includes = new Includes();
 
 		// Products Container Panel
 		JPanel productsPanel = new JPanel();
 		productsPanel.setLayout(new GridLayout(0, 4, 10, 20));
 		productsPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-		// Display Products
-		for (int i = 0; i < 7; i++) {
-			// Product Container
-			JPanel productPanel = new JPanel();
-			productPanel.setLayout(new BorderLayout());
+		// Fetch and display products
+		Connection connection = DbConnect.connect();
+		Statement productsStatement;
+		try {
+			productsStatement = connection.createStatement();
+			ResultSet products = productsStatement.executeQuery("SELECT * FROM products");
+			while (products.next()) {
+				// Product Container
+				JPanel productPanel = new JPanel();
+				productPanel.setLayout(new BorderLayout());
 
-			JPanel product1 = new JPanel();
-			product1.setPreferredSize(new Dimension(100, 250));
+				JPanel product1 = new JPanel();
+				product1.setPreferredSize(new Dimension(100, 250));
 
-			ImageIcon productImg = new ImageIcon("/C://Users//USER//eclipse-workspace//Inventory//src//macbook.jpg");
+				ImageIcon productImg = new ImageIcon(products.getString("image_path"));
 
-			JLabel productLabel = new JLabel();
-			productLabel.setIcon(productImg);
+				JLabel productLabel = new JLabel();
+				productLabel.setIcon(productImg);
 
-			JPanel productNamePanel = new JPanel();
-			JLabel productName = new JLabel("MacBook Air 2020 - $300");
+				JPanel productNamePanel = new JPanel();
+				JLabel productName = new JLabel(products.getString("name") + " - $" + products.getString("price"));
 
-			JPanel productBtnPanel = new JPanel();
-			JButton productBtn = new JButton("View Product");
-			productBtn.setFocusable(false);
-			productBtn.setName(String.valueOf(i));
-			productBtn.addActionListener(e -> {
-				if(e.getSource() == productBtn) {
-					this.dispose();
-				}
-				ViewProduct viewProduct = new ViewProduct(Integer.valueOf(productBtn.getName()));
-			});
+				JPanel productBtnPanel = new JPanel();
+				JButton productBtn = new JButton("View Product");
+				productBtn.setFocusable(false);
+				productBtn.setName(String.valueOf(products.getInt("id")));
+				productBtn.addActionListener(e -> {
+					if (e.getSource() == productBtn) {
+						this.dispose();
+					}
+					ViewProduct viewProduct = new ViewProduct(Integer.valueOf(productBtn.getName()));
+				});
 
-			product1.add(productLabel);
-			productNamePanel.add(productName);
-			productBtnPanel.add(productBtn);
+				product1.add(productLabel);
+				productNamePanel.add(productName);
+				productBtnPanel.add(productBtn);
 
-			productPanel.add(product1, BorderLayout.NORTH);
-			productPanel.add(productNamePanel, BorderLayout.CENTER);
-			productPanel.add(productBtnPanel, BorderLayout.SOUTH);
+				productPanel.add(product1, BorderLayout.NORTH);
+				productPanel.add(productNamePanel, BorderLayout.CENTER);
+				productPanel.add(productBtnPanel, BorderLayout.SOUTH);
 
-			productsPanel.add(productPanel);
+				productsPanel.add(productPanel);
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
 		// Footer
@@ -139,12 +94,11 @@ public class Index extends JFrame {
 
 		this.setTitle("TechHub Inventory");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		this.setResizable(false);
 
-		this.add(navbar, BorderLayout.NORTH);
+		this.add(includes.navbar(), BorderLayout.NORTH);
 		this.add(productsPanel, BorderLayout.CENTER);
 		this.add(footerPanel, BorderLayout.SOUTH);
-		this.pack();
+		this.setSize(700, 700);
 		this.setVisible(true);
 	}
 

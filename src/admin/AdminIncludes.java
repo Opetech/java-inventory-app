@@ -9,10 +9,17 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+import inventory.DbConnect;
 
 public class AdminIncludes {
 
@@ -78,6 +85,11 @@ public class AdminIncludes {
 	 * @return Jpanel component that contains program stats (number of products, users and orders)
 	 */
 	public Component stats() {
+		Connection connection = DbConnect.connect();
+		Statement productsCountStatement;
+		Statement usersCountStatement;
+		Statement ordersCountStatement;
+		
 		JPanel statsContainer = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20));
 
 		// Add sub panel to display dashboard details. E.g. Products, Orders and Users
@@ -124,7 +136,34 @@ public class AdminIncludes {
 		ordersStatIcon.setFont(new Font("", Font.BOLD, 25));
 		ordersStatIconWrapper.add(ordersStatIcon);
 		statsContainer.add(ordersStatIconWrapper);
+		
+		try {
+			// Select all products and load into products list table
+			productsCountStatement = connection.createStatement();
+			ResultSet productsCount = productsCountStatement.executeQuery("SELECT COUNT(*) FROM products");
+			
+			productsCount.next();
+			this.setProductStatLabel(productsCount.getInt("count(*)"));
+			
+			productsCountStatement.close();
 
+			// Get total no of registered program users and update users count label
+			usersCountStatement = connection.createStatement();
+			ResultSet usersCount = usersCountStatement.executeQuery("SELECT COUNT(*) FROM users");
+			usersCount.next();
+			this.setUsersStatLabel(usersCount.getInt("count(*)"));
+			usersCountStatement.close();
+
+			// Get total no of products orders and update orders count label
+			ordersCountStatement = connection.createStatement();
+			ResultSet ordersCount = ordersCountStatement.executeQuery("SELECT COUNT(*) FROM orders");
+			ordersCount.next();
+			this.setOrdersStatLabel(ordersCount.getInt("count(*)"));
+			ordersCountStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		return statsContainer;
 	}
 	
